@@ -7,7 +7,6 @@ local ReactFlow = require(Packages.ReactFlow)
 local InterfaceTypes = require("../Common/Types/Interface")
 local Background = require("../Common/Components/Background")
 local EventHook = require("../Common/Hooks/EventHook")
-local InterfaceManager = require("../Utility/InterfaceManager")
 
 type PossibleProps = InterfaceTypes.InterfaceProps
 

@@ -1,7 +1,7 @@
 --!native
 --!strict
 
-local InterfaceManager = require("../../Utility/InterfaceManager")
+local InterfaceManager = require("../../Controllers/InterfaceManager")
 local OpenConstructor = require("../Utility/OpenConstructor")
 
 --[[

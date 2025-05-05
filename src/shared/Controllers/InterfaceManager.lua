@@ -48,15 +48,22 @@ function InterfaceManager.displayInterface<T>(
 	InterfaceManager._uiUnique += 1
 	local uniqueName = `{interface.context.name}_{InterfaceManager._uiUnique}`
 	local props = interface.context :: InterfaceTypes.InterfaceContext & { children: any? }
+	local interfaceProps = (if options == nil then {} else options) :: T & { interfaceId: string }
+	interfaceProps.interfaceId = uniqueName
 
 	self._display[uniqueName] = React.createElement(self.defaultInterface, props, {
-		React.createElement(interface.func, { interfaceId = uniqueName } :: T & { interfaceId: string }),
+		React.createElement(interface.func, interfaceProps),
 	})
 	self:_render()
 	return uniqueName
 end
 
 function InterfaceManager.hideInterface(self: InterfaceManager, interfaceId: string) end
+
+function InterfaceManager.closeInterface(self: InterfaceManager, interfaceId: string)
+	self._display[interfaceId] = nil
+	self:_render()
+end
 
 function InterfaceManager.defaultInterface(
 	props: InterfaceTypes.InterfaceContext & { children: { React.Element<any> }? }

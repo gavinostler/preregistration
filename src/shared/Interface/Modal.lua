@@ -14,9 +14,9 @@ local TransparencyContext = require("../Common/Components/Contexts/Transparency"
 type PossibleProps = {
 	Text: string,
 	ButtonText: string,
-} & InterfaceTypes.InterfaceProps
+}
 
-local TestInterface = function(props: PossibleProps)
+local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfaceProps)
 	local placement, playPlacement, _ = ReactFlow.useTween({
 		info = TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.InOut),
 		start = 1,
@@ -82,7 +82,7 @@ local Interface = {
 	context = {
 		name = script.Name,
 		ignoreInset = true,
-		zindex = 1,
+		zindex = 99,
 	} :: InterfaceTypes.InterfaceContext,
 	func = TestInterface,
 } :: InterfaceTypes.Interface<PossibleProps>

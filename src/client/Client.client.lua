@@ -5,10 +5,10 @@ local Controllers = ReplicatedStorage.Shared.Controllers
 
 Quark.LoadControllersDeep(Controllers)
 
-local InterfaceManager = require(ReplicatedStorage.Shared.Utility.InterfaceManager)
-local Interface = require(ReplicatedStorage.Shared.Interface.Modal)
-local Interface2 = require(ReplicatedStorage.Shared.Interface.Test)
+local InterfaceManager = require(ReplicatedStorage.Shared.Controllers.InterfaceManager)
+local Interface = require(ReplicatedStorage.Shared.Interface.LoadingScreen)
+local Modal = require(ReplicatedStorage.Shared.Interface.Modal)
 
 InterfaceManager:init()
 InterfaceManager:displayInterface(Interface)
-InterfaceManager:displayInterface(Interface2, {})
+InterfaceManager:displayInterface(Modal, { Text = "Being worked on...", ButtonText = "Ok!" })
