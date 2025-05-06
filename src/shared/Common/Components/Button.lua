@@ -11,6 +11,7 @@ local TransparencyContext = require("./Contexts/Transparency")
 return function(props: {
 	AnchorPoint: Vector2?,
 	Position: UDim2?,
+	AutomaticSize: Enum.AutomaticSize?,
 	Size: UDim2?,
 	onClick: (() -> ())?,
 	Text: {
@@ -18,6 +19,7 @@ return function(props: {
 		Size: number?,
 	}?,
 	LayoutOrder: number?,
+	children: any,
 })
 	local Transparency = React.useContext(TransparencyContext)
 
@@ -36,6 +38,7 @@ return function(props: {
 		end),
 		ScaleType = Enum.ScaleType.Slice,
 		Size = props.Size,
+		AutomaticSize = props.AutomaticSize,
 		SliceCenter = Rect.new(173, 173, 173, 173),
 		SliceScale = 0.3,
 		Position = props.Position,
@@ -52,11 +55,14 @@ return function(props: {
 	}, {
 		["Text"] = if props.Text
 			then React.createElement(Text, {
+				TextSize = props.Text.Size,
 				Text = props.Text.Content,
 				Weight = "Bold",
 				Size = UDim2.fromScale(1, 1),
 				Color = Color3.fromHex("1B1B1B"),
 			})
 			else nil,
+
+		["Children"] = if props.children then React.createElement(React.Fragment, nil, props.children) else nil,
 	})
 end

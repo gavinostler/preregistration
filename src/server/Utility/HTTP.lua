@@ -28,17 +28,26 @@ function m.makeRequest<T>(
 			}
 		) -> ()
 	)
-		local responseData = http:RequestAsync({
-			Url = env.CELESBIT_HOST .. "/api" .. endpoint,
-			Method = options.method,
-			Headers = {
-				["Content-Type"] = "application/json",
-				["Accept"] = "application/json",
-				["Authorization"] = "ApiKey " .. env.CELESBIT_API_KEY,
-			},
-			Body = if options.method ~= "GET" and options.body then http:JSONEncode(options.body) else nil,
-			Compress = Enum.HttpCompression.None,
-		})
+		local pcallsuccess, responseData = pcall(function()
+			return http:RequestAsync({
+				Url = env.CELESBIT_HOST .. "/api" .. endpoint,
+				Method = options.method,
+				Headers = {
+					["Content-Type"] = "application/json",
+					["Accept"] = "application/json",
+					["Authorization"] = "ApiKey " .. env.CELESBIT_API_KEY,
+				},
+				Body = if options.method ~= "GET" and options.body then http:JSONEncode(options.body) else nil,
+				Compress = Enum.HttpCompression.None,
+			})
+		end)
+
+		if not pcallsuccess then
+			return reject({
+				code = 0,
+				status = "HTTP_FAIL",
+			})
+		end
 
 		if responseData.Headers["content-type"] ~= "application/json" then
 			return reject({

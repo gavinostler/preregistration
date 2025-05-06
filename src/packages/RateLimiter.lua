@@ -5,24 +5,31 @@ local RateLimiter = {
 	Limits = {},
 } :: {
 	Limits: { [string]: number },
-	limit: <Q, T...>(f: (user: Player, T...) -> ...Q, requestsPerMinute: number) -> (),
+	limit: <Q, Z, R, D..., T...>(
+		f: (self: Z, res: R, rej: (D...) -> (), user: Player, T...) -> ...Q,
+		requestsPerMinute: number
+	) -> (self: Z, res: R, rej: (D...) -> (), user: Player, T...) -> ...Q,
 	start: () -> (),
 }
 
-function RateLimiter.limit<Q, T...>(f: (user: Player, T...) -> ...Q, requestsPerMinute: number)
-	return function(user: Player, ...)
+function RateLimiter.limit<Q, Z, R, D..., T...>(
+	f: (self: Z, res: R, rej: (D...) -> (), user: Player, T...) -> ...Q,
+	requestsPerMinute: number
+): (self: Z, res: R, rej: (D...) -> (), user: Player, T...) -> ...Q
+	return function(self: Z, res: R, rej: (...any) -> (), user: Player, ...)
 		local key = tostring(user.UserId) .. "." .. tostring(f)
+		print(key)
 		if RateLimiter.Limits[key] == nil then
 			RateLimiter.Limits[key] = 0
 		end
 
 		if RateLimiter.Limits[key] > requestsPerMinute then
-			error("RATE_LIMITED")
+			return rej("RATE_LIMITED")
 		end
 
 		RateLimiter.Limits[key] += 1
 
-		return f(user, ...)
+		return f(self, res, rej, user, ...)
 	end
 end
 

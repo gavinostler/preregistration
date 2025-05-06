@@ -10,6 +10,7 @@ type InterfaceManager = {
 	_root: ReactRoblox.RootType,
 	_rootFolder: Folder,
 	_display: { [string]: React.ReactElement<any, any> | React.Element<any> },
+	_closeFunctions: { [string]: () -> () },
 	_preserveState: { [string]: React.Element<any> },
 	_uiUnique: number,
 
@@ -20,11 +21,13 @@ type InterfaceManager = {
 	displayInterface: <T>(self: InterfaceManager, interface: InterfaceTypes.Interface<T>, options: T?) -> string,
 	hideInterface: (self: InterfaceManager, interfaceId: string) -> (),
 	closeInterface: (self: InterfaceManager, interfaceId: string) -> (),
+	setCloseFunction: (self: InterfaceManager, interfaceId: string, f: () -> ()) -> (),
 }
 
 local InterfaceManager = {
 	_uiUnique = 0,
 	_display = {},
+	_closeFunctions = {},
 	_preserveState = {},
 } :: InterfaceManager
 
@@ -37,7 +40,7 @@ end
 function InterfaceManager._render(self: InterfaceManager): ()
 	assert(self._root, "Root must exist")
 
-	self._root:render(self._display :: { [string]: React.Element<any> })
+	self._root:render(table.clone(self._display) :: { [string]: React.Element<any> })
 end
 
 function InterfaceManager.displayInterface<T>(
@@ -58,10 +61,18 @@ function InterfaceManager.displayInterface<T>(
 	return uniqueName
 end
 
+function InterfaceManager.setCloseFunction(self: InterfaceManager, interfaceId: string, f: () -> ())
+	self._closeFunctions[interfaceId] = f
+end
+
 function InterfaceManager.hideInterface(self: InterfaceManager, interfaceId: string) end
 
 function InterfaceManager.closeInterface(self: InterfaceManager, interfaceId: string)
+	if self._closeFunctions[interfaceId] then
+		self._closeFunctions[interfaceId]()
+	end
 	self._display[interfaceId] = nil
+	self._closeFunctions[interfaceId] = nil
 	self:_render()
 end
 

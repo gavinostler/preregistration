@@ -11,6 +11,7 @@ local SYMBOLS = require(script.Parent.Symbols)
 local TYPES = require(script.Parent.Types)
 
 local ServerComm = require(script.Parent.Parent.Parent.Packages["_Index"]["sleitnick_comm@0.3.2"]["comm"]).ServerComm -- TODO: fix imports
+local Promise = require(script.Parent.Parent.Promise)
 
 local Quark = {
 	__modules = {},
@@ -45,19 +46,32 @@ Quark.LoadService = function(Module)
 	if Module.endpoints and typeof(Module.endpoints) == "table" then
 		for key, value in Module.endpoints do
 			if value == SYMBOLS.QUARK_SIGNAL_MARKER then
-				warn("Service signals disabled")
 				Module.endpoints[key] = ServerComm:CreateSignal(key)
 			elseif typeof(value) == "function" then
 				ServerComm:BindFunction(key, function(...)
-					return Module.endpoints[key](Module, ...)
+					local args = { ... } -- annoying workaround
+					local success, data = Promise.new(function(resolve, reject)
+						return Module.endpoints[key](Module, resolve, reject, unpack(args))
+					end):await()
+
+					if success == false and typeof(data) == "string" and data:len() > 50 then
+						warn(data)
+						return {
+							success = success,
+							data = "UNKNOWN_ERROR",
+						}
+					end
+
+					return {
+						success = success,
+						data = data,
+					}
 				end)
-				warn("Service signals disabled")
 			end
 		end
 	end
 
 	Module[SYMBOLS.QUARK_MODULE_COMMUNICATIONS] = ServerComm
-	warn("Service signals disabled")
 
 	Quark.__modules[ModuleOptions.Name] = Module
 end

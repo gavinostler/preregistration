@@ -9,6 +9,11 @@ Any and all modules
 -- Imports
 local RunService = game:GetService("RunService")
 
+export type ServerResponse<T> = {
+	success: boolean,
+	data: T | string,
+}
+
 if RunService:IsServer() then
 	return require(script.Server)
 else

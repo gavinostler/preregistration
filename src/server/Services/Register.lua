@@ -3,6 +3,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Quark = require(ReplicatedStorage.CoreLibs.Quark)
 local promise = require(ReplicatedStorage.CoreLibs.Promise)
+local rl = require(ReplicatedStorage.CoreLibs.RateLimiter)
 
 local http = require("../Utility/HTTP")
 
@@ -21,7 +22,6 @@ function Service.getPreregisterCount()
 			:andThen(function(result: { count: number })
 				resolve(result.count)
 			end, function(err)
-				print(err)
 				reject(err.status)
 			end)
 			:await()
@@ -45,8 +45,22 @@ function Service.preregister(userId: number)
 	end)
 end
 
-function Service.endpoints.preregister(self: Service, user: Player)
-	self.preregister(user.UserId)
+Service.endpoints.preregister = rl.limit(function(self: Service, res, rej, user: Player)
+	local success, count: string = self.preregister(user.UserId):await()
+	if not success then
+		rej(count)
+	else
+		res(count)
+	end
+end, 2)
+
+function Service.endpoints.getUserCount(self: Service, res, rej, user: Player)
+	local success, count = self.getPreregisterCount():await()
+	if not success then
+		rej(count)
+	else
+		res(count)
+	end
 end
 
 type Service = typeof(Service)

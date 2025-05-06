@@ -19,11 +19,12 @@ type props = {
 	Size: UDim2?,
 	AutomaticSize: Enum.AutomaticSize?,
 	LayoutOrder: number?,
+	Transparency: number?,
 	children: any,
 }
 
 return function(props: props)
-	local Transparency = React.useContext(TransparencyContext)
+	local Transparency = props.Transparency or React.useContext(TransparencyContext)
 
 	return React.createElement("TextLabel", {
 		BackgroundTransparency = 1,

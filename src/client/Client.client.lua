@@ -7,8 +7,8 @@ Quark.LoadControllersDeep(Controllers)
 
 local InterfaceManager = require(ReplicatedStorage.Shared.Controllers.InterfaceManager)
 local Interface = require(ReplicatedStorage.Shared.Interface.LoadingScreen)
-local Modal = require(ReplicatedStorage.Shared.Interface.Modal)
+local Modal = require(ReplicatedStorage.Shared.Interface.PreRegistration)
 
 InterfaceManager:init()
 InterfaceManager:displayInterface(Interface)
-InterfaceManager:displayInterface(Modal, { Text = "Being worked on...", ButtonText = "Ok!" })
+InterfaceManager:displayInterface(Modal)

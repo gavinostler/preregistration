@@ -11,5 +11,3 @@ local Services = ServerScriptService.Server.Services
 -- Entrypoint
 
 Quark.LoadServicesDeep(Services)
-
-print(require(ServerScriptService.Server.Services.Register).getPreregisterCount():await())
