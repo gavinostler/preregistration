@@ -12,3 +12,5 @@ local Modal = require(ReplicatedStorage.Shared.Interface.PreRegistration)
 InterfaceManager:init()
 InterfaceManager:displayInterface(Interface)
 InterfaceManager:displayInterface(Modal)
+
+game.SoundService.music:Play()
