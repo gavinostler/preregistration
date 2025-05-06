@@ -22,6 +22,7 @@ function Service.getPreregisterCount()
 			:andThen(function(result: { count: number })
 				resolve(result.count)
 			end, function(err)
+				warn(err.code, err.message)
 				reject(err.status)
 			end)
 			:await()
@@ -47,6 +48,7 @@ end
 
 Service.endpoints.preregister = rl.limit(function(self: Service, res, rej, user: Player)
 	local success, count: string = self.preregister(user.UserId):await()
+	print(success, count)
 	if not success then
 		rej(count)
 	else
@@ -56,6 +58,7 @@ end, 2)
 
 function Service.endpoints.getUserCount(self: Service, res, rej, user: Player)
 	local success, count = self.getPreregisterCount():await()
+	print(success, count)
 	if not success then
 		rej(count)
 	else

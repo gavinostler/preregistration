@@ -63,8 +63,14 @@ function m.makeRequest<T>(
 		if not responseData.Success then
 			return reject({
 				code = responseData.StatusCode,
-				status = (if ok then (dataOrErr :: { [string]: any })["error"] else "UNKNOWN_ERROR"),
-				message = (if ok then dataOrErr else nil) :: { [string]: any }?,
+				status = (if ok
+						and dataOrErr ~= nil
+						and dataOrErr ~= ""
+					then (dataOrErr :: { [string]: any })["error"]
+					else "UNKNOWN_ERROR"),
+				message = (
+						if ok and dataOrErr ~= nil and dataOrErr ~= "" then dataOrErr else nil
+					) :: { [string]: any }?,
 				rawBody = responseData.Body,
 			})
 		end

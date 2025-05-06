@@ -76,7 +76,7 @@ local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfacePr
 			if not response.success then
 				if response.data ~= "ROBLOX_ALREADY_REGISTERED" then
 					return InterfaceManager:displayInterface(Modal, {
-						Text = "We may be having some trouble with our servers, check back later!\nSTATUS CODE: " .. response.data,
+						Text = "We may be having some trouble with our servers, check back later!\nSTATUS CODE: " .. if response.data then response.data else "UNKNOWN_ERROR_REPORT",
 						Buttons={
 							{
 								Text="Ok"
@@ -183,7 +183,8 @@ local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfacePr
 					BackgroundTransparency = 1,
 					AutomaticSize = Enum.AutomaticSize.Y,
 					Size = UDim2.new(0, 220, 0, 40),
-					Position = UDim2.new(0, 10, 0, 10),
+					AnchorPoint = Vector2.new(0,1),
+					Position = UDim2.new(0, 10, 1, -10),
 					ZIndex = 3,
 				}),
 			}),
