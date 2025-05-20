@@ -17,6 +17,7 @@ return {
 		["Text"] = UILabs.String(""),
 	},
 	story = function(props)
+		props.controls.interfaceId = "test"
 		return React.createElement(Component.func, props.controls)
 	end,
 }

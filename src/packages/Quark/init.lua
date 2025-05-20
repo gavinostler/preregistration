@@ -14,7 +14,7 @@ export type ServerResponse<T> = {
 	data: T | string,
 }
 
-if RunService:IsServer() then
+if RunService:IsServer() and RunService:IsRunning() == true then
 	return require(script.Server)
 else
 	return require(script.Client)

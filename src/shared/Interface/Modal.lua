@@ -113,6 +113,7 @@ local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfacePr
 				HorizontalAlignment = Enum.HorizontalAlignment.Center,
 				Padding = UDim.new(0, 35 / 2),
 				SortOrder = Enum.SortOrder.LayoutOrder,
+				VerticalAlignment = Enum.VerticalAlignment.Center,
 			}),
 
 			["UIPadding"] = React.createElement("UIPadding", {

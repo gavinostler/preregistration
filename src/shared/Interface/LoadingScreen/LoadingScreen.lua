@@ -35,7 +35,7 @@ local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfacePr
 		return list
 	end, {})
 
-	local notes = OpenInSuccession(allnotes, 0.1, function(position: number)
+	local notes, open = OpenInSuccession(allnotes, 0.1, function(position: number)
 		return React.createElement(Note, {
 			start = position,
 			position = 0,
@@ -56,8 +56,13 @@ local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfacePr
 	})
 
 	React.useEffect(function()
-		playMove({ target = 1 })
 		task.spawn(function()
+			if not game:IsLoaded() then
+				game.Loaded:Wait()
+			end
+			task.wait(1)
+			open()
+			playMove({ target = 1 })
 			task.wait(3)
 			playTransparency({ target = 1 })
 		end)

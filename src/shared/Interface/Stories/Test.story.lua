@@ -19,6 +19,7 @@ return {
 	},
 	story = function(props)
 		return React.createElement(Component.func, {
+			interfaceId = "test",
 			DebugIsThereMail = props.controls["Mail?"],
 		})
 	end,

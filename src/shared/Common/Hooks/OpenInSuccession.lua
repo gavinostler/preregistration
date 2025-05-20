@@ -8,9 +8,14 @@ return function<T>(
 	objects: { [string | number]: T },
 	time: number,
 	dead: ((position: number) -> React.ReactElement<any, any>)?
-): { [string | number]: T | React.ReactElement<any, any> }
+): ({ [string | number]: T | React.ReactElement<any, any> }, () -> ())
 	local currentList, setCurrentList = React.useState({} :: { [string | number]: T | React.ReactElement<any, any> })
+	local isReady, setReady = React.useState(false)
+
 	React.useEffect(function()
+		if not isReady then
+			return
+		end
 		task.spawn(function()
 			local internal = {} :: { [string | number]: T | React.ReactElement<any, any> }
 			local i = 1
@@ -32,7 +37,10 @@ return function<T>(
 				i += 1
 			end
 		end)
-	end, {})
+	end, { isReady })
 
-	return currentList
+	return currentList, function()
+		setCurrentList({})
+		setReady(true)
+	end
 end

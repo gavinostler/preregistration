@@ -1,10 +1,12 @@
 --!native
 --!strict
+local RunService = game:GetService("RunService")
 local Packages = game:GetService("ReplicatedStorage"):WaitForChild("Packages")
 local ReactRoblox = require(Packages.ReactRoblox)
 local React = require(Packages:WaitForChild("React"))
 
 local InterfaceTypes = require("../Common/Types/Interface")
+local DEBUG = not RunService:IsRunning()
 
 type InterfaceManager = {
 	_root: ReactRoblox.RootType,
@@ -32,9 +34,10 @@ local InterfaceManager = {
 } :: InterfaceManager
 
 function InterfaceManager.init(self: InterfaceManager): ()
-	self._rootFolder = Instance.new("Folder", game.Players.LocalPlayer.PlayerGui)
+	local rootFolderParent = if DEBUG then Instance.new("Folder", game.CoreGui) else game.Players.LocalPlayer.PlayerGui
+	self._rootFolder = Instance.new("Folder", rootFolderParent)
 	self._rootFolder.Name = "root"
-	self._root = ReactRoblox.createRoot(game.Players.LocalPlayer.PlayerGui)
+	self._root = ReactRoblox.createRoot(rootFolderParent)
 end
 
 function InterfaceManager._render(self: InterfaceManager): ()
@@ -62,6 +65,11 @@ function InterfaceManager.displayInterface<T>(
 end
 
 function InterfaceManager.setCloseFunction(self: InterfaceManager, interfaceId: string, f: () -> ())
+	if not interfaceId and DEBUG then
+		return
+	end
+	assert(interfaceId, "Interface ID must be provided")
+
 	self._closeFunctions[interfaceId] = f
 end
 

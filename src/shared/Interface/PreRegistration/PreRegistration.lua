@@ -14,10 +14,12 @@ local Button = require("../../Common/Components/Button")
 local InterfaceManager = require("../../Controllers/InterfaceManager")
 local Modal = require("../Modal")
 local NumberUtil = require("../../Utility/Numbers")
+local useLock = require("../../Common/Hooks/useLock")
 
 local Quark = require(game.ReplicatedStorage.CoreLibs.Quark)
-
 local Service = Quark.GetService("Register")
+
+local t = require("../../Common/Utility/Translation").t
 
 type PossibleProps = {
 	Text: string,
@@ -25,8 +27,6 @@ type PossibleProps = {
 }
 
 local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfaceProps)
-	local delayed, setDelayed = React.useState(false)
-
 	local animations, playAnimation = ReactFlow.useGroupAnimation({
 		show = ReactFlow.useSequenceAnimation({
 			{
@@ -45,30 +45,32 @@ local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfacePr
 		move = 1,
 	})
 
+	local isLocked, acquireLock, forceLock = useLock()
+
 	React.useEffect(function()
 		playAnimation("show")
-		task.delay(3, function()
-			setDelayed(true)
-		end)
 	end, {})
 
 	local userCount = React.useMemo(function()
-		if delayed == false then
-			return 0
-		end
 		local success: boolean, value: Quark.ServerResponse<number> = Service:getUserCount():await()
 		if not success or not value.success then
 			InterfaceManager:displayInterface(Modal, {
-				Text = "We may be having some trouble with our servers, check back later!\nSTATUS CODE: " .. value.data,
+				Text = t("http.error", value.data),
 			})
 			return 0
 		end
 		return value.data :: number
-	end, { delayed })
+	end, { })
 
 	local preregister = function()
+		print(isLocked)
+		if isLocked then
+			print("no")
+			return
+		end
+		forceLock(true)
 		local id = InterfaceManager:displayInterface(Modal, {
-			Text = "Working...",
+			Text = t("ui.register.working"),
 		})
 		local p = Service:preregister() :: Promise.TypedPromise<Quark.ServerResponse<string>>
 		p:andThen(function (response)
@@ -76,36 +78,38 @@ local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfacePr
 			if not response.success then
 				if response.data ~= "ROBLOX_ALREADY_REGISTERED" then
 					return InterfaceManager:displayInterface(Modal, {
-						Text = "We may be having some trouble with our servers, check back later!\nSTATUS CODE: " .. if response.data then response.data else "UNKNOWN_ERROR_REPORT",
+						Text = t("http.error", if response.data then response.data else "UNKNOWN_ERROR_REPORT"),
 						Buttons={
 							{
-								Text="Ok"
+								Text=t("common.ok"),
 							}
 						}
 					})
 				else
 					return InterfaceManager:displayInterface(Modal, {
-						Text = "You seem to have already registered for Poly Defense.",
+						Text = t("ui.register.alreadyRegistered"),
 						Buttons={
 							{
-								Text="Ok"
+								Text=t("common.ok"),
 							}
 						}
 					})
 				end
 			end
 			InterfaceManager:displayInterface(Modal, {
-				Text = "You have successfully pre-registered for Poly Defense!",
+				Text = t("ui.register.success"),
 				Buttons={
 					{
-						Text="Ok"
+						Text=t("common.ok"),
 					}
 				}
 			})
 		end, function (errorCode: string)
 			InterfaceManager:displayInterface(Modal, {
-				Text = "We may be having some trouble with our servers, check back later!\nSTATUS CODE: " .. errorCode,
+				Text = t("http.error", errorCode),
 			})
+		end):andThen(function()
+			forceLock(false)
 		end)
 
 	end
@@ -127,13 +131,13 @@ local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfacePr
 				["Image"] = React.createElement("ImageLabel", {
 					Image = "rbxassetid://110840735106075",
 					ScaleType = Enum.ScaleType.Crop,
-					ImageTransparency = 0.5,
+					ImageTransparency = 0.8,
 					BackgroundTransparency = 1,
 					Size = UDim2.new(1, 0, 1, 0),
 				}, {
 
 					["Text"] = React.createElement(Text, {
-						Text = "Ready to compose some adventures together?",
+						Text = t("ui.register.title"),
 						Wraps = true,
 						Size = UDim2.new(0, 0),
 						Position = UDim2.new(0, 0, 1, -50),
@@ -147,17 +151,17 @@ local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfacePr
 						AnchorPoint = Vector2.new(0, 0),
 						Size = UDim2.new(0, 280, 0, 50),
 						Text = {
-							Content = "Pre-Register",
+							Content = t("ui.register.button"),
 							Size = 27,
 						},
 
-						onClick=preregister
+						onClick=acquireLock(preregister)
 					}),
 
 					["Join"] = React.createElement(Text, {
-						Text = `to join <font size="30" color="#{Colors.Main.Gold:ToHex()}">{NumberUtil.comma_value(
+						Text = t("ui.register.usercount", Colors.Main.Gold:ToHex(), NumberUtil.comma_value(
 							userCount
-						)}</font> other Roblox users!`,
+						)),
 						Wraps = true,
 						Size = UDim2.new(0, 0),
 						Position = UDim2.new(0, 0, 1, -50),
@@ -176,7 +180,7 @@ local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfacePr
 				}),
 
 				["PD"] = React.createElement("ImageLabel", {
-					Image = "rbxassetid://101506952924779",
+					Image = "rbxassetid://70834101153612",
 					BackgroundColor3 = Color3.new(1, 1, 1),
 					ScaleType = Enum.ScaleType.Fit,
 					ImageTransparency = 0,
@@ -184,7 +188,7 @@ local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfacePr
 					AutomaticSize = Enum.AutomaticSize.Y,
 					Size = UDim2.new(0, 220, 0, 40),
 					AnchorPoint = Vector2.new(0,1),
-					Position = UDim2.new(0, 10, 1, -10),
+					Position = UDim2.new(0, 15, 1, -10),
 					ZIndex = 3,
 				}),
 			}),

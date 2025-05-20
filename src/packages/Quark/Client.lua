@@ -1,3 +1,4 @@
+local RunService = game:GetService("RunService")
 --[[
 
 ❖ Quark is service and client manager in charge of replacing Knit as a whole, while providing types.
@@ -16,6 +17,7 @@ local ClientComm = require(script.Parent.Parent.Parent.Packages["_Index"]["sleit
 local Quark = {
 	__modules = {},
 	__services = {},
+	__mocked_services = {},
 }
 
 Quark.ServiceOptions, Quark.ControllerOptions = SYMBOLS.QUARK_MODULE_OPTIONS, SYMBOLS.QUARK_MODULE_OPTIONS
@@ -33,6 +35,11 @@ Quark.GetService = function(name: string): any?
 		return Quark.__services[name]
 	end
 
+	if not script.Parent:FindFirstChild("Services") then
+		warn(string.format("[QUARK] Service %s does not exist, falling back to any possible mock.", name))
+		return Quark.__mocked_services[name]
+	end
+
 	if not script.Parent.Services:FindFirstChild(name) then
 		return
 	end
@@ -40,7 +47,6 @@ Quark.GetService = function(name: string): any?
 	local ClientComm = ClientComm.new(script.Parent.Services, true, name)
 	local Service = ClientComm:BuildObject()
 	Quark.__services[name] = Service
-	warn("Service loading disabled")
 
 	return Quark.GetService(name)
 end
@@ -89,6 +95,39 @@ Quark.Start = function()
 			end
 		end
 	end)
+end
+
+Quark.LoadMockedService = function(Module)
+	if typeof(Module) ~= "table" then
+		return
+	end
+	if RunService:IsStudio() == false or RunService:IsRunning() == true then
+		warn(string.format("[QUARK] Module %s is not a mocked service. 2", Module.Name))
+		return
+	end
+	if not Module[SYMBOLS.QUARK_MODULE_OPTIONS] then
+		warn(string.format("[QUARK] Module %s is not a mocked service.", Module.Name))
+		return
+	end
+
+	local ModuleOptions = Module[SYMBOLS.QUARK_MODULE_OPTIONS] :: TYPES.QUARK_MODULE_OPTIONS
+
+	Quark.__mocked_services[ModuleOptions.Name] = Module
+	print(string.format("[QUARK] Loaded mocked service %s", ModuleOptions.Name))
+end
+
+Quark.LoadMockedServicesDeep = function(group: Instance)
+	if RunService:IsStudio() == false or RunService:IsRunning() == true then
+		return
+	end
+
+	for _, item in group:GetDescendants() do
+		if not item:IsA("ModuleScript") then
+			continue
+		end
+
+		Quark.LoadMockedService(require(item) :: any)
+	end
 end
 
 export type Quark = typeof(Quark)

@@ -14,14 +14,23 @@ return {
 	react = React,
 	reactRoblox = ReactRoblox,
 	controls = {
-		["Text"] = UILabs.String(""),
+		["Text"] = UILabs.String("Hello World"),
+		["Button?"] = UILabs.Boolean(true),
 	},
 	story = function(props)
+		props.controls.interfaceId = "test"
 		return React.createElement(Component.func, {
+			interfaceId = "test",
+			Text = props.controls.Text,
 			Buttons = {
-				{
-					Text = "test",
-				},
+				if props.controls["Button?"]
+					then {
+						Text = "test",
+						OnClick = function()
+							print("test")
+						end,
+					}
+					else nil,
 			},
 		})
 	end,
