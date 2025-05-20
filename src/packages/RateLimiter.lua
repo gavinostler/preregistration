@@ -18,7 +18,6 @@ function RateLimiter.limit<Q, Z, R, D..., T...>(
 ): (self: Z, res: R, rej: (D...) -> (), user: Player, T...) -> ...Q
 	return function(self: Z, res: R, rej: (...any) -> (), user: Player, ...)
 		local key = tostring(user.UserId) .. "." .. tostring(f)
-		print(key)
 		if RateLimiter.Limits[key] == nil then
 			RateLimiter.Limits[key] = 0
 		end
