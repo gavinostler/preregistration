@@ -1,3 +1,6 @@
+--!native
+--!strict
+
 local SYMBOLS = {}
 
 SYMBOLS.QUARK_MODULE_OPTIONS = 0xeac10

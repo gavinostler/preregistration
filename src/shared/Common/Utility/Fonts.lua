@@ -1,3 +1,6 @@
+--!native
+--!strict
+
 local Fonts = {}
 
 Fonts.Default = Font.fromId(12187364147, Enum.FontWeight.Bold, Enum.FontStyle.Normal)

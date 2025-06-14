@@ -1,3 +1,6 @@
+--!native
+--!strict
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local InterfaceManager = require(script.Parent.InterfaceManager)

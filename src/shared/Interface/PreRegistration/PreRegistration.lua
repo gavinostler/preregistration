@@ -21,6 +21,8 @@ local Service = Quark.GetService("Register")
 
 local t = require("../../Common/Utility/Translation").t
 
+local TopBar = require("./UpperBar")
+
 type PossibleProps = {
 	Text: string,
 	ButtonText: string,
@@ -45,6 +47,27 @@ local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfacePr
 		move = 1,
 	})
 
+	local scrollPosition, playScrollPosition, _ = ReactFlow.useTween({
+		info = TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
+		start = 0,
+		target = 0,
+	})
+	local scrollRef = React.createRef()
+
+	local sizeY = InterfaceManager.ViewportScaleBinding("y")
+
+	local function scrollTo(percentage: number)
+		-- assumption that viewport doesnt change during the animation
+		if not scrollRef.current then
+			return
+		end
+
+		playScrollPosition({
+			start = scrollRef.current.CanvasPosition.Y / scrollRef.current.AbsoluteCanvasSize.Y,
+			target = percentage,
+		})
+	end
+
 	local isLocked, acquireLock, forceLock = useLock()
 
 	React.useEffect(function()
@@ -60,12 +83,10 @@ local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfacePr
 			return 0
 		end
 		return value.data :: number
-	end, { })
+	end, {})
 
 	local preregister = function()
-		print(isLocked)
 		if isLocked then
-			print("no")
 			return
 		end
 		forceLock(true)
@@ -73,123 +94,178 @@ local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfacePr
 			Text = t("ui.register.working"),
 		})
 		local p = Service:preregister() :: Promise.TypedPromise<Quark.ServerResponse<string>>
-		p:andThen(function (response)
+		p:andThen(function(response)
 			InterfaceManager:closeInterface(id)
 			if not response.success then
 				if response.data ~= "ROBLOX_ALREADY_REGISTERED" then
 					return InterfaceManager:displayInterface(Modal, {
 						Text = t("http.error", if response.data then response.data else "UNKNOWN_ERROR_REPORT"),
-						Buttons={
+						Buttons = {
 							{
-								Text=t("common.ok"),
-							}
-						}
+								Text = t("common.ok"),
+							},
+						},
 					})
 				else
 					return InterfaceManager:displayInterface(Modal, {
 						Text = t("ui.register.alreadyRegistered"),
-						Buttons={
+						Buttons = {
 							{
-								Text=t("common.ok"),
-							}
-						}
+								Text = t("common.ok"),
+							},
+						},
 					})
 				end
 			end
 			InterfaceManager:displayInterface(Modal, {
 				Text = t("ui.register.success"),
-				Buttons={
+				Buttons = {
 					{
-						Text=t("common.ok"),
-					}
-				}
+						Text = t("common.ok"),
+					},
+				},
 			})
-		end, function (errorCode: string)
+		end, function(errorCode: string)
 			InterfaceManager:displayInterface(Modal, {
 				Text = t("http.error", errorCode),
 			})
 		end):andThen(function()
 			forceLock(false)
 		end)
-
 	end
 
 	return React.createElement(TransparencyContext.Provider, { value = animations.transparency }, {
 
-		["UI"] = React.createElement("Frame", {
-			BackgroundTransparency = 0,
-			BackgroundColor3 = Colors.Background.Primary,
-			BorderSizePixel = 0,
+		["TopBar"] = React.createElement(TopBar, { scrollTo = scrollTo }),
+
+		["UI"] = React.createElement("ScrollingFrame", {
+			BackgroundTransparency = 1,
+			ClipsDescendants = false,
+			ElasticBehavior = Enum.ElasticBehavior.Always,
+			ScrollBarImageTransparency = 0.9,
+			ScrollBarThickness = 10,
+			ScrollingDirection = Enum.ScrollingDirection.Y,
 			Size = UDim2.fromScale(1, 1),
+			CanvasPosition = React.joinBindings({ sp = scrollPosition, sy = sizeY }):map(function(joinedBinding: {
+				sp: number,
+				sy: number,
+			})
+				return Vector2.new(0, joinedBinding.sp * joinedBinding.sy * 1080 * 2)
+			end),
+			["ref"] = scrollRef,
 		}, {
-			["UI"] = React.createElement("Frame", {
-				BackgroundTransparency = 1,
+			["UpperMain"] = React.createElement("Frame", {
+				BackgroundTransparency = 0,
+				BackgroundColor3 = Colors.Background.Primary,
 				BorderSizePixel = 0,
 				Size = UDim2.fromScale(1, 1),
 			}, {
-
-				["Image"] = React.createElement("ImageLabel", {
-					Image = "rbxassetid://110840735106075",
-					ScaleType = Enum.ScaleType.Crop,
-					ImageTransparency = 0.8,
+				["UI"] = React.createElement("Frame", {
 					BackgroundTransparency = 1,
-					Size = UDim2.new(1, 0, 1, 0),
+					BorderSizePixel = 0,
+					Size = UDim2.fromScale(1, 0.5),
 				}, {
 
-					["Text"] = React.createElement(Text, {
-						Text = t("ui.register.title"),
-						Wraps = true,
-						Size = UDim2.new(0, 0),
-						Position = UDim2.new(0, 0, 1, -50),
-						AutomaticSize = Enum.AutomaticSize.XY,
-						LayoutOrder = 1,
-						TextSize = 48,
-					}),
+					["Image"] = React.createElement("ImageLabel", {
+						Image = "rbxassetid://110840735106075",
+						ScaleType = Enum.ScaleType.Crop,
+						ImageTransparency = 0.8,
+						BackgroundTransparency = 1,
+						Size = UDim2.new(1, 0, 1.05, 0),
+					}, {
+						["Graident"] = React.createElement("UIGradient", {
+							Rotation = 90,
+							Transparency = NumberSequence.new({
+								NumberSequenceKeypoint.new(0, 0),
+								NumberSequenceKeypoint.new(0.95, 0),
+								NumberSequenceKeypoint.new(1, 1),
+							}),
+						}),
 
-					["Button"] = React.createElement(Button, {
-						LayoutOrder = 2,
-						AnchorPoint = Vector2.new(0, 0),
-						Size = UDim2.new(0, 280, 0, 50),
-						Text = {
-							Content = t("ui.register.button"),
-							Size = 27,
-						},
+						["UI"] = React.createElement("Frame", {
+							BackgroundTransparency = 1,
+							BorderSizePixel = 0,
+							AnchorPoint = Vector2.new(0.5, 0.5),
+							Position = UDim2.fromScale(0.5, 0.5),
+							AutomaticSize = Enum.AutomaticSize.XY,
+						}, {
 
-						onClick=acquireLock(preregister)
-					}),
+							InterfaceManager.ViewportScale(),
 
-					["Join"] = React.createElement(Text, {
-						Text = t("ui.register.usercount", Colors.Main.Gold:ToHex(), NumberUtil.comma_value(
-							userCount
-						)),
-						Wraps = true,
-						Size = UDim2.new(0, 0),
-						Position = UDim2.new(0, 0, 1, -50),
-						AutomaticSize = Enum.AutomaticSize.XY,
-						LayoutOrder = 3,
-						TextSize = 24,
-					}),
+							["Text"] = React.createElement(Text, {
+								Text = t("ui.register.title"),
+								Wraps = true,
+								Size = UDim2.new(0, 0),
+								Position = UDim2.new(0, 0, 1, -50),
+								AutomaticSize = Enum.AutomaticSize.XY,
+								LayoutOrder = 1,
+								TextSize = 48,
+							}),
 
-					["UIListLayout"] = React.createElement("UIListLayout", {
-						VerticalAlignment = Enum.VerticalAlignment.Center,
-						HorizontalAlignment = Enum.HorizontalAlignment.Center,
-						HorizontalFlex = Enum.UIFlexAlignment.SpaceAround,
-						Padding = UDim.new(0, 10),
-						SortOrder = Enum.SortOrder.LayoutOrder,
+							["Button"] = React.createElement(Button, {
+								LayoutOrder = 2,
+								AnchorPoint = Vector2.new(0, 0),
+								Size = UDim2.new(0, 280, 0, 50),
+								Text = {
+									Content = t("ui.register.button"),
+									Size = 27,
+								},
+
+								onClick = acquireLock(preregister),
+							}),
+
+							["Join"] = React.createElement(Text, {
+								Text = t(
+									"ui.register.usercount",
+									Colors.Main.Gold:ToHex(),
+									NumberUtil.comma_value(userCount)
+								),
+								Wraps = true,
+								Size = UDim2.new(0, 0),
+								Position = UDim2.new(0, 0, 1, -50),
+								AutomaticSize = Enum.AutomaticSize.XY,
+								LayoutOrder = 3,
+								TextSize = 24,
+							}),
+
+							["UIListLayout"] = React.createElement("UIListLayout", {
+								VerticalAlignment = Enum.VerticalAlignment.Center,
+								HorizontalAlignment = Enum.HorizontalAlignment.Center,
+								HorizontalFlex = Enum.UIFlexAlignment.SpaceAround,
+								Padding = UDim.new(0, 10),
+								SortOrder = Enum.SortOrder.LayoutOrder,
+							}),
+						}),
 					}),
 				}),
-
-				["PD"] = React.createElement("ImageLabel", {
-					Image = "rbxassetid://70834101153612",
-					BackgroundColor3 = Color3.new(1, 1, 1),
-					ScaleType = Enum.ScaleType.Fit,
-					ImageTransparency = 0,
+				["UI2"] = React.createElement("Frame", {
 					BackgroundTransparency = 1,
-					AutomaticSize = Enum.AutomaticSize.Y,
-					Size = UDim2.new(0, 220, 0, 40),
-					AnchorPoint = Vector2.new(0,1),
-					Position = UDim2.new(0, 15, 1, -10),
-					ZIndex = 3,
+					BorderSizePixel = 0,
+					Size = UDim2.fromScale(1, 0.5),
+					Position = UDim2.new(0, 0, 1, 0),
+					AnchorPoint = Vector2.new(0, 1),
+				}, {
+
+					["UI"] = React.createElement("Frame", {
+						BackgroundTransparency = 1,
+						BorderSizePixel = 0,
+						AnchorPoint = Vector2.new(0.5, 0.5),
+						Position = UDim2.fromScale(0.5, 0.5),
+						AutomaticSize = Enum.AutomaticSize.XY,
+					}, {
+
+						InterfaceManager.ViewportScale(),
+
+						["Text"] = React.createElement(Text, {
+							Text = t("ui.register.coming_soon"),
+							Wraps = true,
+							Size = UDim2.new(0, 0),
+							Position = UDim2.new(0, 0, 1, -50),
+							AutomaticSize = Enum.AutomaticSize.XY,
+							LayoutOrder = 1,
+							TextSize = 48,
+						}),
+					}),
 				}),
 			}),
 		}),
@@ -200,6 +276,7 @@ local Interface = {
 	context = {
 		name = script.Name,
 		ignoreInset = true,
+		disableScale = true,
 		zindex = 1,
 	} :: InterfaceTypes.InterfaceContext,
 	func = TestInterface,

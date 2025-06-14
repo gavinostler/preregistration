@@ -12,14 +12,15 @@ return function(props: {
 	AnchorPoint: Vector2?,
 	Position: UDim2?,
 	AutomaticSize: Enum.AutomaticSize?,
-	Size: UDim2?,
+	Size: (UDim2 | React.Binding<UDim2>)?,
 	onClick: (() -> ())?,
 	Text: {
 		Content: string,
-		Size: number?,
+		Size: (number | React.Binding<number>)?,
 	}?,
 	LayoutOrder: number?,
 	children: any,
+	ZIndex: number?,
 })
 	local Transparency = React.useContext(TransparencyContext)
 
@@ -34,13 +35,14 @@ return function(props: {
 		BorderSizePixel = 0,
 		Image = "rbxassetid://90818589136566",
 		ImageColor3 = hovered:map(function(a0: number)
-			return Colors.Main.ButtonPrimary:Lerp(Color3.new(1, 1, 1), a0 * 0.25)
+			return Colors.Main.ButtonPrimary:Lerp(Color3.new(1, 1, 1), a0 * 0.4)
 		end),
 		ScaleType = Enum.ScaleType.Slice,
 		Size = props.Size,
 		AutomaticSize = props.AutomaticSize,
 		SliceCenter = Rect.new(173, 173, 173, 173),
 		SliceScale = 0.3,
+		ZIndex = props.ZIndex,
 		Position = props.Position,
 		AnchorPoint = props.AnchorPoint,
 		LayoutOrder = props.LayoutOrder,
@@ -60,6 +62,7 @@ return function(props: {
 				Weight = "Bold",
 				Size = UDim2.fromScale(1, 1),
 				Color = Color3.fromHex("1B1B1B"),
+				ZIndex = props.ZIndex,
 			})
 			else nil,
 

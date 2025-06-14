@@ -1,3 +1,4 @@
+--!native
 --!strict
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local http = game:GetService("HttpService")

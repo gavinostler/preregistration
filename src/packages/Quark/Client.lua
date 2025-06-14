@@ -1,3 +1,6 @@
+--!native
+--!strict
+
 local RunService = game:GetService("RunService")
 --[[
 
@@ -15,7 +18,7 @@ local TYPES = require(script.Parent.Types)
 local ClientComm = require(script.Parent.Parent.Parent.Packages["_Index"]["sleitnick_comm@0.3.2"]["comm"]).ClientComm -- todo fix imports
 
 local Quark = {
-	__modules = {},
+	__modules = {} :: { [string]: { [any]: any } },
 	__services = {},
 	__mocked_services = {},
 }

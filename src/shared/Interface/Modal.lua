@@ -80,6 +80,9 @@ local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfacePr
 			Size = UDim2.fromOffset(400, 100),
 			AutomaticSize = Enum.AutomaticSize.Y,
 		}, {
+			["ScaleFix"] = React.createElement("UIScale", {
+				Scale = 1.25,
+			}), -- fix for stupidness
 
 			["Text"] = React.createElement(Text, {
 				Text = props.Text

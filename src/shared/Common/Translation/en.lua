@@ -1,3 +1,6 @@
+--!native
+--!strict
+
 return table.freeze({
 	["common.ok"] = "OK",
 
@@ -10,4 +13,7 @@ return table.freeze({
 	["ui.register.button"] = "Pre-Register",
 
 	["ui.register.usercount"] = 'to join <font size="30" color="#{color}">{number}</font> other Roblox users!',
+
+	["ui.register.other_rewards"] = "Other Rewards",
+	["ui.register.coming_soon"] = "Coming soon...",
 })

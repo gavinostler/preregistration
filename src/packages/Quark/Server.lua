@@ -1,3 +1,6 @@
+--!native
+--!strict
+
 --[[
 
 ❖ Quark is service and client manager in charge of replacing Knit as a whole, while providing types.
@@ -27,7 +30,7 @@ Quark.GetService = function(name: string)
 	return Quark.__modules[name]
 end
 
-Quark.LoadService = function(Module)
+Quark.LoadService = function(Module: { [any]: any })
 	if typeof(Module) ~= "table" then
 		return
 	end
@@ -59,7 +62,7 @@ Quark.LoadService = function(Module)
 						return {
 							success = success,
 							data = "UNKNOWN_ERROR",
-						}
+						} :: { data: any, success: boolean }
 					end
 
 					return {

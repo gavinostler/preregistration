@@ -5,6 +5,7 @@ export type InterfaceContext = {
 	name: string,
 	zindex: number?,
 	ignoreInset: boolean?,
+	disableScale: boolean?, -- does not reduce overhead because of annoying issue with useEffect grr
 }
 
 export type Interface<T> = {

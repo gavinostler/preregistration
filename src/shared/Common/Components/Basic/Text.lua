@@ -8,7 +8,7 @@ local TransparencyContext = require("../Contexts/Transparency")
 
 type props = {
 	Text: string,
-	TextSize: number?,
+	TextSize: (number | React.Binding<number>)?,
 	Color: Color3?,
 	Wraps: boolean?,
 	XAlignment: Enum.TextXAlignment?,
@@ -20,6 +20,7 @@ type props = {
 	AutomaticSize: Enum.AutomaticSize?,
 	LayoutOrder: number?,
 	Transparency: number?,
+	ZIndex: number?,
 	children: any,
 }
 
@@ -43,5 +44,6 @@ return function(props: props)
 		TextXAlignment = props.XAlignment,
 		TextYAlignment = props.YAlignment or Enum.TextYAlignment.Center,
 		LayoutOrder = props.LayoutOrder,
+		ZIndex = props.ZIndex,
 	}, props.children)
 end
