@@ -7,6 +7,7 @@ local promise = require(ReplicatedStorage.CoreLibs.Promise)
 local rl = require(ReplicatedStorage.CoreLibs.RateLimiter)
 
 local http = require("../Utility/HTTP")
+local ApiTypes = require(ReplicatedStorage.Shared.Common.Types.API.Preregister)
 
 local Service = {
 	[Quark.ServiceOptions] = {
@@ -20,11 +21,10 @@ function Service.getPreregisterCount()
 		http.makeRequest("/v1/pd/preregister/count", {
 			method = "GET",
 		})
-			:andThen(function(result: { count: number })
-				resolve(result.count)
+			:andThen(function(result: ApiTypes.PreregisterCountResponse)
+				resolve(result)
 			end, function(err)
-				warn(err.code, err.message)
-				reject(err.status)
+				reject(err)
 			end)
 			:await()
 	end)
@@ -38,33 +38,21 @@ function Service.preregister(userId: number)
 				user_id = userId,
 			},
 		})
-			:andThen(function(result: { message: string })
-				return resolve(result.message)
+			:andThen(function(result: ApiTypes.PreregisterResponse)
+				return resolve(result)
 			end, function(err)
-				return reject(err.status)
+				return reject(err)
 			end)
 			:await()
 	end)
 end
 
 Service.endpoints.preregister = rl.limit(function(self: Service, res, rej, user: Player)
-	local success, count: string = self.preregister(user.UserId):await()
-	print(success, count)
-	if not success then
-		rej(count)
-	else
-		res(count)
-	end
+	self.preregister(user.UserId):andThen(res, rej)
 end, 2)
 
 function Service.endpoints.getUserCount(self: Service, res, rej, user: Player)
-	local success, count = self.getPreregisterCount():await()
-	print(success, count)
-	if not success then
-		rej(count)
-	else
-		res(count)
-	end
+	self.getPreregisterCount():andThen(res, rej)
 end
 
 type Service = typeof(Service)

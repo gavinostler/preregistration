@@ -24,7 +24,7 @@ type PossibleProps = {
 
 local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfaceProps)
 	local placement, playPlacement, _ = ReactFlow.useTween({
-		info = TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.InOut),
+		info = TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
 		start = 1,
 		target = 0,
 	})
@@ -73,15 +73,15 @@ local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfacePr
 	return React.createElement(TransparencyContext.Provider, { value = placement }, {
 
 		["UI"] = React.createElement(Background, {
-			Position = placement:map(function(a0: number)
-				return UDim2.new(0.5, 0, 0.5, 50 * a0)
-			end),
+			Position = UDim2.new(0.5, 0, 0.5, 0),
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Size = UDim2.fromOffset(400, 100),
 			AutomaticSize = Enum.AutomaticSize.Y,
 		}, {
 			["ScaleFix"] = React.createElement("UIScale", {
-				Scale = 1.25,
+				Scale = placement:map(function(a0: number)
+					return 1.25 * (1 - (a0 * 0.02))
+				end),
 			}), -- fix for stupidness
 
 			["Text"] = React.createElement(Text, {

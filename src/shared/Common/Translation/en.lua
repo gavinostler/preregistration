@@ -15,5 +15,10 @@ return table.freeze({
 	["ui.register.usercount"] = 'to join <font size="30" color="#{color}">{number}</font> other Roblox users!',
 
 	["ui.register.other_rewards"] = "Other Rewards",
-	["ui.register.coming_soon"] = "Coming soon...",
+	["ui.register.event_not_started"] = "This event has not started yet. It will start on {time}.",
+
+	["ui.register.claimed"] = "You have successfully claimed your reward!",
+	["ui.register.claim_error"] = "There was an error claiming your reward. Please try again later.",
+	["ui.register.already_claimed"] = "You have already claimed this reward.",
+	["ui.register.cannot_claim"] = "You cannot claim this reward yet. You can claim it at {time}.",
 })

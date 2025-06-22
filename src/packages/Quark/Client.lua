@@ -1,6 +1,7 @@
 --!native
 --!strict
 
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 --[[
 
@@ -11,6 +12,7 @@ Any and all modules
 ]]
 
 -- Imports
+local General = require(ReplicatedStorage.Shared.Common.Types.API.General)
 local Promise = require(script.Parent.Parent.Promise)
 local SYMBOLS = require(script.Parent.Symbols)
 local TYPES = require(script.Parent.Types)
@@ -33,6 +35,34 @@ Quark.GetController = function(name: string)
 	return Quark.__modules[name]
 end
 
+Quark._overrideFunctions = function(functions: { [any]: <b, c>(_self: b, ...any) -> ...any })
+	local newObject = {}
+	for key, value in functions do
+		if typeof(value) == "function" then
+			newObject[key] = function(_self: any, ...)
+				local workaround = { ... } -- annoying workaround
+				return Promise.new(function(resolve, reject)
+					local success, returnedValue = value(_self, table.unpack(workaround)):await()
+
+					if success == false and typeof(returnedValue) == "table" then
+						return reject(returnedValue)
+					elseif success == false then
+						return reject({ statusCode = 0, type = "HTTP_FAIL" } :: General.APIResponse)
+					elseif typeof(returnedValue) == "table" then
+						if returnedValue.success == false then
+							return reject(returnedValue.data)
+						end
+						return resolve(returnedValue.data)
+					else
+						return resolve(returnedValue)
+					end
+				end)
+			end
+		end
+	end
+	return newObject
+end
+
 Quark.GetService = function(name: string): any?
 	if Quark.__services[name] then
 		return Quark.__services[name]
@@ -49,7 +79,9 @@ Quark.GetService = function(name: string): any?
 
 	local ClientComm = ClientComm.new(script.Parent.Services, true, name)
 	local Service = ClientComm:BuildObject()
-	Quark.__services[name] = Service
+
+	print(string.format("[QUARK] Loaded service %s", name))
+	Quark.__services[name] = Quark._overrideFunctions(Service)
 
 	return Quark.GetService(name)
 end

@@ -168,6 +168,21 @@ function NovusCache.bget<T>(self: NovusCache<T>, keys: { any }): { T? }
 	return list
 end
 
+function NovusCache.acquireLock(self: NovusCache<boolean>, key: any): boolean?
+	assert(self, "You must call .createCache with the name of your cache to use get.")
+	assert(key, "Failed to supply a key.")
+
+	if self.__cache[key] then
+		return nil -- Lock already exists
+	end
+
+	self:set(key, true, {
+		notExists = true,
+		expiry = self.__timeout,
+	})
+	return true -- Lock acquired
+end
+
 export type NovusS = typeof(NovusS)
 
 export type NovusCacheImpl<T> = {
@@ -191,14 +206,15 @@ export type NovusCacheImpl<T> = {
 		key: any,
 		value: T,
 		options: {
-			notExists: boolean,
-			expiry: number,
+			notExists: boolean?,
+			expiry: number?,
 		}?
 	) -> boolean?,
 	get: (self: NovusCache<T>, key: any) -> T?,
 	bget: (self: NovusCache<T>, keys: { any }) -> { T? },
 	delete: (self: NovusCache<T>, key: any) -> nil,
 	deletePartialKey: (self: NovusCache<T>, key: any) -> nil,
+	acquireLock: (self: NovusCache<T>, key: any) -> boolean?,
 }
 
 export type NovusCache<T> = typeof(setmetatable({} :: NovusCacheImpl<T>, {} :: NovusCacheImpl<T>))

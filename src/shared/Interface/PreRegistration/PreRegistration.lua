@@ -3,6 +3,8 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Packages = game:GetService("ReplicatedStorage"):WaitForChild("Packages")
 local Promise = require(ReplicatedStorage.CoreLibs.Promise)
+local General = require(ReplicatedStorage.Shared.Common.Types.API.General)
+local Preregister = require(ReplicatedStorage.Shared.Common.Types.API.Preregister)
 local React = require(Packages:WaitForChild("React"))
 local ReactFlow = require(Packages:WaitForChild("ReactFlow"))
 
@@ -22,6 +24,7 @@ local Service = Quark.GetService("Register")
 local t = require("../../Common/Utility/Translation").t
 
 local TopBar = require("./UpperBar")
+local Calendar = require("./Calendar")
 
 type PossibleProps = {
 	Text: string,
@@ -75,14 +78,15 @@ local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfacePr
 	end, {})
 
 	local userCount = React.useMemo(function()
-		local success: boolean, value: Quark.ServerResponse<number> = Service:getUserCount():await()
-		if not success or not value.success then
+		local success: boolean, data: Preregister.PreregisterCountResponse = Service:getUserCount():await()
+		if not success or not data.count then
+			local err = data :: General.APIResponse
 			InterfaceManager:displayInterface(Modal, {
-				Text = t("http.error", value.data),
+				Text = t("http.error", err.message or err.type),
 			})
 			return 0
 		end
-		return value.data :: number
+		return data.count :: number
 	end, {})
 
 	local preregister = function()
@@ -93,30 +97,8 @@ local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfacePr
 		local id = InterfaceManager:displayInterface(Modal, {
 			Text = t("ui.register.working"),
 		})
-		local p = Service:preregister() :: Promise.TypedPromise<Quark.ServerResponse<string>>
+		local p = Service:preregister() :: Promise.TypedPromise<Preregister.PreregisterResponse>
 		p:andThen(function(response)
-			InterfaceManager:closeInterface(id)
-			if not response.success then
-				if response.data ~= "ROBLOX_ALREADY_REGISTERED" then
-					return InterfaceManager:displayInterface(Modal, {
-						Text = t("http.error", if response.data then response.data else "UNKNOWN_ERROR_REPORT"),
-						Buttons = {
-							{
-								Text = t("common.ok"),
-							},
-						},
-					})
-				else
-					return InterfaceManager:displayInterface(Modal, {
-						Text = t("ui.register.alreadyRegistered"),
-						Buttons = {
-							{
-								Text = t("common.ok"),
-							},
-						},
-					})
-				end
-			end
 			InterfaceManager:displayInterface(Modal, {
 				Text = t("ui.register.success"),
 				Buttons = {
@@ -125,12 +107,29 @@ local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfacePr
 					},
 				},
 			})
-		end, function(errorCode: string)
-			InterfaceManager:displayInterface(Modal, {
-				Text = t("http.error", errorCode),
+		end, function(err: General.APIResponse)
+			if err.type ~= "ROBLOX_ALREADY_REGISTERED" then
+				return InterfaceManager:displayInterface(Modal, {
+					Text = t("http.error", err.message or err.type),
+					Buttons = {
+						{
+							Text = t("common.ok"),
+						},
+					},
+				})
+			end
+
+			return InterfaceManager:displayInterface(Modal, {
+				Text = t("ui.register.alreadyRegistered"),
+				Buttons = {
+					{
+						Text = t("common.ok"),
+					},
+				},
 			})
-		end):andThen(function()
+		end):finally(function()
 			forceLock(false)
+			InterfaceManager:closeInterface(id)
 		end)
 	end
 
@@ -169,8 +168,9 @@ local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfacePr
 					["Image"] = React.createElement("ImageLabel", {
 						Image = "rbxassetid://110840735106075",
 						ScaleType = Enum.ScaleType.Crop,
-						ImageTransparency = 0.8,
-						BackgroundTransparency = 1,
+						ImageTransparency = 0.6,
+						BackgroundColor3 = Colors.Background.Primary,
+						BackgroundTransparency = 0,
 						Size = UDim2.new(1, 0, 1.05, 0),
 					}, {
 						["Graident"] = React.createElement("UIGradient", {
@@ -246,26 +246,7 @@ local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfacePr
 					AnchorPoint = Vector2.new(0, 1),
 				}, {
 
-					["UI"] = React.createElement("Frame", {
-						BackgroundTransparency = 1,
-						BorderSizePixel = 0,
-						AnchorPoint = Vector2.new(0.5, 0.5),
-						Position = UDim2.fromScale(0.5, 0.5),
-						AutomaticSize = Enum.AutomaticSize.XY,
-					}, {
-
-						InterfaceManager.ViewportScale(),
-
-						["Text"] = React.createElement(Text, {
-							Text = t("ui.register.coming_soon"),
-							Wraps = true,
-							Size = UDim2.new(0, 0),
-							Position = UDim2.new(0, 0, 1, -50),
-							AutomaticSize = Enum.AutomaticSize.XY,
-							LayoutOrder = 1,
-							TextSize = 48,
-						}),
-					}),
+					["UI"] = React.createElement(Calendar),
 				}),
 			}),
 		}),

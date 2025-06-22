@@ -30,6 +30,16 @@ Quark.GetService = function(name: string)
 	return Quark.__modules[name]
 end
 
+Quark._wrapSuccess = function(data: any, success: boolean)
+	return {
+		success = success,
+		data = data,
+	} :: {
+		success: boolean,
+		data: any,
+	}
+end
+
 Quark.LoadService = function(Module: { [any]: any })
 	if typeof(Module) ~= "table" then
 		return
@@ -57,18 +67,30 @@ Quark.LoadService = function(Module: { [any]: any })
 						return Module.endpoints[key](Module, resolve, reject, unpack(args))
 					end):await()
 
-					if success == false and typeof(data) == "string" and data:len() > 50 then
-						warn(data)
-						return {
-							success = success,
-							data = "UNKNOWN_ERROR",
-						} :: { data: any, success: boolean }
+					if success == false and typeof(data) ~= "table" then
+						return Quark._wrapSuccess(
+							{
+								statusCode = 1,
+								type = if data ~= "RATE_LIMITED" then "UNKNOWN_ERROR" else data,
+							} :: {
+								statusCode: number,
+								type: string,
+								message: string?,
+								[string]: any,
+							},
+							false
+						)
 					end
 
-					return {
-						success = success,
-						data = data,
-					}
+					return Quark._wrapSuccess(
+						data :: {
+							statusCode: number,
+							type: string,
+							message: string?,
+							[string]: any,
+						},
+						success
+					)
 				end)
 			end
 		end

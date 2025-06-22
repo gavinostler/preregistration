@@ -154,6 +154,7 @@ function InterfaceManager.defaultInterface(
 		wrapperProps.IgnoreGuiInset = props.ignoreInset
 	end
 	wrapperProps.ResetOnSpawn = false
+	wrapperProps.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 	if not props.disableScale then
 		props.children["_UISCALE"] = InterfaceManager.ViewportScale()
