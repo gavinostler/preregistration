@@ -3,21 +3,11 @@
 local RunService = game:GetService("RunService")
 
 local RateLimiter = {
-	Limits = {},
-} :: {
-	Limits: { [string]: number },
-	limit: <Q, Z, R, D..., T...>(
-		f: (self: Z, res: R, rej: (D...) -> (), user: Player, T...) -> ...Q,
-		requestsPerMinute: number
-	) -> (self: Z, res: R, rej: (D...) -> (), user: Player, T...) -> ...Q,
-	start: () -> (),
+	Limits = {} :: { [string]: number },
 }
 
-function RateLimiter.limit<Q, Z, R, D..., T...>(
-	f: (self: Z, res: R, rej: (D...) -> (), user: Player, T...) -> ...Q,
-	requestsPerMinute: number
-): (self: Z, res: R, rej: (D...) -> (), user: Player, T...) -> ...Q
-	return function(self: Z, res: R, rej: (...any) -> (), user: Player, ...)
+function RateLimiter.limit(f: (...any) -> ...any, requestsPerMinute: number)
+	return function(self, res, rej, user: Player, ...)
 		local key = tostring(user.UserId) .. "." .. tostring(f)
 		if RateLimiter.Limits[key] == nil then
 			RateLimiter.Limits[key] = 0
