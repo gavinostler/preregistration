@@ -24,7 +24,7 @@ local Service = Quark.GetService("Register")
 local t = require("../../Common/Utility/Translation").t
 
 local TopBar = require("./UpperBar")
-local Calendar = require("./Calendar")
+-- local Calendar = require("./Calendar")
 
 type PossibleProps = {
 	Text: string,
@@ -238,16 +238,16 @@ local TestInterface = function(props: PossibleProps & InterfaceTypes.InterfacePr
 						}),
 					}),
 				}),
-				["UI2"] = React.createElement("Frame", {
-					BackgroundTransparency = 1,
-					BorderSizePixel = 0,
-					Size = UDim2.fromScale(1, 0.5),
-					Position = UDim2.new(0, 0, 1, 0),
-					AnchorPoint = Vector2.new(0, 1),
-				}, {
+				-- ["UI2"] = React.createElement("Frame", {
+				-- 	BackgroundTransparency = 1,
+				-- 	BorderSizePixel = 0,
+				-- 	Size = UDim2.fromScale(1, 0.5),
+				-- 	Position = UDim2.new(0, 0, 1, 0),
+				-- 	AnchorPoint = Vector2.new(0, 1),
+				-- }, {
 
-					["UI"] = React.createElement(Calendar),
-				}),
+				-- 	["UI"] = React.createElement(Calendar),
+				-- }),
 			}),
 		}),
 	})

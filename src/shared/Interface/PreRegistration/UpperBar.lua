@@ -75,23 +75,23 @@ local TestInterface = function(props: PossibleProps)
 			ZIndex = 3,
 		}),
 
-		["Other Rewards"] = React.createElement(Button, {
-			LayoutOrder = 3,
-			AnchorPoint = Vector2.new(0, 0),
-			Size = sx:map(function(x: number)
-				return UDim2.new(0, math.max(x, 0.75) * 200, 0.65, 0)
-			end),
-			Text = {
-				Content = t("ui.register.other_rewards"),
-				Size = sy:map(function(x: number)
-					return math.max(0.75, x) * 24
-				end),
-			},
-			onClick = function()
-				props.scrollTo(0.5)
-			end,
-			ZIndex = 3,
-		}),
+		-- ["Other Rewards"] = React.createElement(Button, {
+		-- 	LayoutOrder = 3,
+		-- 	AnchorPoint = Vector2.new(0, 0),
+		-- 	Size = sx:map(function(x: number)
+		-- 		return UDim2.new(0, math.max(x, 0.75) * 200, 0.65, 0)
+		-- 	end),
+		-- 	Text = {
+		-- 		Content = t("ui.register.other_rewards"),
+		-- 		Size = sy:map(function(x: number)
+		-- 			return math.max(0.75, x) * 24
+		-- 		end),
+		-- 	},
+		-- 	onClick = function()
+		-- 		props.scrollTo(0.5)
+		-- 	end,
+		-- 	ZIndex = 3,
+		-- }),
 	})
 end
 
