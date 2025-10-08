@@ -15,3 +15,7 @@ This project's original function was to serve as the pre-registation service for
 ## Tests
 
 This place does not support any testing suite yet.
+
+## Other Information
+
+If you'd like to use any of the packages (under src/packages) offered in this project, feel free! I don't expect them to be used, but if for some unknown reason it fits your requirements please provide credit somewhere along the line.
