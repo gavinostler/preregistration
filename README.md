@@ -1,6 +1,6 @@
 ## About
 
-This project's original function was to serve as the pre-registation service for a ROBLOX game. I no longer work on this pre-registration game, so I made it public.
+This project's original function was to serve as the pre-registration service for a ROBLOX game. I no longer work on this pre-registration game, so I made it public.
 
 > [!CAUTION]
 > This code may be messy in some spots, but this game was a learning experience to get back into development using lua.
