@@ -1,9 +1,9 @@
 ## About
 
-This is a general state machine for a possible new project.
+This project's original function was to serve as the pre-registation service for a ROBLOX game. I no longer work on this pre-registration game, so I made it public.
 
 > [!CAUTION]
-> This has yet to reach any "production-ready" version. This code are subject to major changes and should not be relied on.
+> This code may be messy in some spots, but this game was a learning experience to get back into development using lua.
 
 
 ## File Structure
